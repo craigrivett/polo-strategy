@@ -96,9 +96,9 @@ export default function MatchSummary({ teamA, teamB }: Props) {
         <div className="grid grid-cols-2 divide-x divide-slate-700/50"
           style={{ background: 'rgba(10,22,40,0.95)' }}>
           {[
-            { label: 'Team A', hcp: hcpA, positions: posA, accent: 'text-blue-400', border: 'border-blue-500' },
-            { label: 'Team B', hcp: hcpB, positions: posB, accent: 'text-purple-400', border: 'border-purple-500' },
-          ].map(({ label, hcp, positions, accent, border }) => (
+            { label: 'Team A', hcp: hcpA, positions: posA, accent: 'text-blue-400' },
+            { label: 'Team B', hcp: hcpB, positions: posB, accent: 'text-purple-400' },
+          ].map(({ label, hcp, positions, accent }) => (
             <div key={label} className="p-4">
               <div className={`font-black text-base ${accent} mb-0.5`}>{label}</div>
               <div className="text-xs text-slate-500 font-semibold mb-4">{hcp} HCP</div>

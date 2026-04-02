@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { Player } from './types'
 import PlayerRoster from './components/PlayerRoster'
 import TeamBuilder from './components/TeamBuilder'
