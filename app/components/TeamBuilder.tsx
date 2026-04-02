@@ -1,5 +1,4 @@
 'use client'
-import { useState } from 'react'
 import { Users, ArrowLeftRight, ChevronRight } from 'lucide-react'
 import { Player } from '../types'
 
@@ -11,14 +10,6 @@ interface Props {
 }
 
 export default function TeamBuilder({ players, teamA, teamB, onTeamsChange }: Props) {
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-
-  const toggleSelect = (id: string) => {
-    const s = new Set(selected)
-    s.has(id) ? s.delete(id) : s.add(id)
-    setSelected(s)
-  }
-
   const autoSplit = () => {
     const sorted = [...players].sort((a, b) => b.handicap - a.handicap)
     const a: Player[] = []
@@ -50,7 +41,7 @@ export default function TeamBuilder({ players, teamA, teamB, onTeamsChange }: Pr
         {team.length === 0 && <p className="text-slate-600 text-xs text-center py-4">Drop players here</p>}
         {team.map(p => (
           <div key={p.id} className="flex items-center justify-between bg-slate-700 rounded px-2 py-1.5 text-xs">
-            <span>{p.name} <span className="text-amber-400">+{p.handicap > 0 ? p.handicap : p.handicap}</span></span>
+            <span>{p.name} <span className="text-amber-400">{p.handicap > 0 ? `+${p.handicap}` : p.handicap}</span></span>
             <button
               className="text-slate-400 hover:text-amber-400"
               onClick={() => moveToTeam(p, label === 'Team A' ? 'B' : 'A')}
