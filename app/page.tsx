@@ -11,6 +11,17 @@ import MatchSummary from './components/MatchSummary'
 const TABS = ['Roster', 'Teams', 'Positions', 'Tips', 'Summary'] as const
 type Tab = typeof TABS[number]
 
+const DEMO_PLAYERS: Player[] = [
+  { id: 'demo-1', name: 'James Stirling', handicap: 8 },
+  { id: 'demo-2', name: 'Nicolás Pieres', handicap: 7 },
+  { id: 'demo-3', name: 'Tom Morley', handicap: 5 },
+  { id: 'demo-4', name: 'Alejandro Novillo', handicap: 6 },
+  { id: 'demo-5', name: 'Ben Vestey', handicap: 4 },
+  { id: 'demo-6', name: 'Sam Browne', handicap: 3 },
+  { id: 'demo-7', name: 'Charlie Wright', handicap: 2 },
+  { id: 'demo-8', name: 'Luke Davies', handicap: 1 },
+]
+
 export default function Home() {
   const [tab, setTab] = useState<Tab>('Roster')
   const [players, setPlayers] = useState<Player[]>([])
@@ -18,7 +29,6 @@ export default function Home() {
   const [teamB, setTeamB] = useState<Player[]>([])
   const [hydrated, setHydrated] = useState(false)
 
-  // Load from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('poloiq-state')
@@ -32,7 +42,6 @@ export default function Home() {
     setHydrated(true)
   }, [])
 
-  // Save to localStorage
   useEffect(() => {
     if (!hydrated) return
     localStorage.setItem('poloiq-state', JSON.stringify({ players, teamA, teamB }))
@@ -40,43 +49,77 @@ export default function Home() {
 
   const handlePlayersChange = (updated: Player[]) => {
     setPlayers(updated)
-    // Remove deleted players from teams
     setTeamA(prev => prev.filter(p => updated.find(u => u.id === p.id)).map(p => updated.find(u => u.id === p.id)!))
     setTeamB(prev => prev.filter(p => updated.find(u => u.id === p.id)).map(p => updated.find(u => u.id === p.id)!))
   }
 
-  const tabClass = (t: Tab) =>
-    `px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
-      tab === t
-        ? 'bg-amber-500 text-slate-900'
-        : 'text-slate-400 hover:text-white hover:bg-slate-700'
-    }`
+  const loadDemoData = () => {
+    setPlayers(DEMO_PLAYERS)
+    const sorted = [...DEMO_PLAYERS].sort((a, b) => b.handicap - a.handicap)
+    const a: Player[] = []
+    const b: Player[] = []
+    sorted.forEach((p, i) => (i % 2 === 0 ? a : b).push(p))
+    setTeamA(a)
+    setTeamB(b)
+  }
+
+  const tabIcons: Record<Tab, string> = {
+    Roster: '👥',
+    Teams: '⚡',
+    Positions: '🎯',
+    Tips: '💡',
+    Summary: '📋',
+  }
 
   if (!hydrated) return null
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f1f3d 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #07111f 0%, #0a1628 40%, #0d1d35 100%)' }}>
       {/* Header */}
-      <header className="border-b border-slate-700/60 px-4 py-3 flex items-center gap-3">
-        <Image src="/logo.svg" alt="PoloIQ logo" width={36} height={36} className="rounded-lg" />
-        <div>
-          <h1 className="font-black text-white text-lg leading-none">PoloIQ</h1>
-          <p className="text-amber-400 text-xs font-medium">Build your best game</p>
+      <header className="sticky top-0 z-10 border-b border-slate-700/50 px-4 py-3 flex items-center gap-3"
+        style={{ background: 'linear-gradient(180deg, #0a1628 0%, #0c1a30dd 100%)', backdropFilter: 'blur(12px)' }}>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
+          style={{ background: 'linear-gradient(135deg, #c9a84c, #e8c96a)' }}>
+          <span className="text-slate-900 text-lg">🏇</span>
         </div>
-        <div className="ml-auto text-xs text-slate-500">{players.length} players</div>
+        <div>
+          <h1 className="font-black text-white text-lg leading-none tracking-tight">PoloIQ</h1>
+          <p className="text-amber-400/80 text-xs font-medium">Build your best game</p>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          {players.length > 0 && (
+            <span className="text-xs text-slate-500 bg-slate-700/50 px-2.5 py-1 rounded-full border border-slate-600/40">
+              {players.length} players
+            </span>
+          )}
+        </div>
       </header>
 
       {/* Tab nav */}
-      <nav className="px-4 py-3 flex gap-1 border-b border-slate-700/40 overflow-x-auto">
+      <nav className="px-3 py-2.5 flex gap-1 border-b border-slate-700/30 overflow-x-auto"
+        style={{ background: 'rgba(10,22,40,0.7)', backdropFilter: 'blur(8px)' }}>
         {TABS.map(t => (
-          <button key={t} className={tabClass(t)} onClick={() => setTab(t)}>{t}</button>
+          <button
+            key={t}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
+              tab === t ? 'tab-active' : 'tab-inactive'
+            }`}
+            onClick={() => setTab(t)}
+          >
+            <span className="text-sm">{tabIcons[t]}</span>
+            {t}
+          </button>
         ))}
       </nav>
 
       {/* Content */}
       <main className="max-w-2xl mx-auto px-4 py-5 space-y-4">
         {tab === 'Roster' && (
-          <PlayerRoster players={players} onChange={handlePlayersChange} />
+          <PlayerRoster
+            players={players}
+            onChange={handlePlayersChange}
+            onLoadDemo={loadDemoData}
+          />
         )}
         {tab === 'Teams' && (
           <TeamBuilder
@@ -96,13 +139,13 @@ export default function Home() {
           <MatchSummary teamA={teamA} teamB={teamB} />
         )}
 
-        {/* Quick nav hint */}
-        <p className="text-center text-xs text-slate-600 pb-4">
-          {tab === 'Roster' && players.length >= 2 && '→ Head to Teams to build your match lineup'}
-          {tab === 'Teams' && (teamA.length > 0 || teamB.length > 0) && '→ Check Positions for placement recommendations'}
-          {tab === 'Positions' && '→ See Tips for tactical advice'}
-          {tab === 'Tips' && '→ View Summary for a printable match card'}
-        </p>
+        {/* Nav hint */}
+        {tab === 'Roster' && players.length >= 2 && (
+          <p className="text-center text-xs text-slate-600 pb-4">Tap <strong className="text-slate-500">Teams ⚡</strong> to build your lineup</p>
+        )}
+        {tab === 'Teams' && (teamA.length > 0 || teamB.length > 0) && (
+          <p className="text-center text-xs text-slate-600 pb-4">Tap <strong className="text-slate-500">Positions 🎯</strong> for placement</p>
+        )}
       </main>
     </div>
   )
